@@ -672,7 +672,18 @@ fun RowScope.LineSample8() {
                     20.0
                 ),
                 color = SolidColor(Color(0xff5A47CF)),
-                firstGradientFillColor = Color(0xff6655CF).copy(alpha = .5f),
+                colors = listOf(
+                    Color(0xffa1d4a7).copy(alpha = .5f),
+                    Color(0xffba0012).copy(alpha = .5f)
+                ),
+                dotProperties = DotProperties(
+                    enabled = true,
+                    drawOnlyMaxAndMin = true,
+                    color = SolidColor(Color(0xff23AF92)),
+                    strokeWidth = 2.dp,
+                    radius = 3.dp,
+                    strokeColor = SolidColor(Color(0xffffffff)),
+                ),
                 secondGradientFillColor = Color.Transparent,
                 strokeAnimationSpec = tween(2000, easing = EaseInOutCubic),
                 gradientAnimationDelay = 1000,
@@ -706,14 +717,19 @@ fun RowScope.LineSample8() {
                     contentBuilder = {
                         it.format(1) + " Million"
                     },
-                    containerColor = Color(0xff414141)
+                    showCircle = true,
+                    containerColor = Color(0xff414141),
+                    circleColor = Color(0xFFFFFFFF),
                 ),
                 indicatorProperties = HorizontalIndicatorProperties(
                     enabled = false
                 ),
                 labelProperties = LabelProperties(enabled = false),
                 labelHelperProperties = LabelHelperProperties(enabled = false),
-                curvedEdges = true
+                curvedEdges = true,
+                onPopupDisplay = {
+                    println(it)
+                }
             )
         }
     }

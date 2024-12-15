@@ -13,6 +13,7 @@ data class Line(
     val label: String,
     val values: List<Double>,
     val color: Brush,
+    val colors: List<Color>? = null,
     val firstGradientFillColor: Color? = null,
     val secondGradientFillColor: Color? = null,
     val drawStyle: DrawStyle = DrawStyle.Stroke(2.dp),

@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 
 internal fun DrawScope.drawLineGradient(
     path: Path,
+    colors: List<Color>? = null,
     color1: Color,
     color2: Color,
     progress: Float,
@@ -24,10 +25,14 @@ internal fun DrawScope.drawLineGradient(
         paint.shader = LinearGradientShader(
             Offset(0f, 0f),
             Offset(0f, _size.height),
-            listOf(
-                color1.copy(alpha = color1.alpha * progress),
-                color2,
-            ),
+            if (colors != null) {
+                colors
+            } else {
+                listOf(
+                    color1.copy(alpha = color1.alpha * progress),
+                    color2,
+                )
+            },
             tileMode = TileMode.Mirror
         )
         it.drawPath(p, paint)

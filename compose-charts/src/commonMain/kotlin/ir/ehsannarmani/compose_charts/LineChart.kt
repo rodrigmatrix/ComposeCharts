@@ -72,7 +72,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-private data class Popup(
+data class Popup(
     val properties: PopupProperties,
     val position: Offset,
     val value: Double
@@ -107,6 +107,7 @@ fun LineChart(
     minValue: Double = if (data.any { it.values.any { it < 0.0 } }) data.minOfOrNull {
         it.values.minOfOrNull { it } ?: 0.0
     } ?: 0.0 else 0.0,
+    onPopupDisplay: (Popup?) -> Unit = { },
 ) {
     if (data.isNotEmpty()) {
         require(minValue <= (data.minOfOrNull { it.values.minOfOrNull { it } ?: 0.0 } ?: 0.0)) {
@@ -266,6 +267,7 @@ fun LineChart(
                         if (!popupProperties.enabled) return@pointerInput
                         detectHorizontalDragGestures(
                             onDragEnd = {
+                                onPopupDisplay(null)
                                 scope.launch {
                                     popupAnimation.animateTo(0f, animationSpec = tween(500))
                                     popups.clear()
@@ -305,6 +307,14 @@ fun LineChart(
                                             maxValue = maxValue
                                         )
                                         popups.add(
+                                            Popup(
+                                                position = popupValue.offset,
+                                                value = popupValue.calculatedValue,
+                                                properties = properties
+                                            )
+                                        )
+
+                                        onPopupDisplay(
                                             Popup(
                                                 position = popupValue.offset,
                                                 value = popupValue.calculatedValue,
@@ -405,7 +415,16 @@ fun LineChart(
                             brush = line.color,
                             style = Stroke(width = stroke, pathEffect = pathEffect)
                         )
-                        if (line.firstGradientFillColor != null && line.secondGradientFillColor != null) {
+                        if (line.colors != null) {
+                            drawLineGradient(
+                                path = pathData.path,
+                                colors = line.colors,
+                                color1 = Color.Transparent,
+                                color2 = Color.Transparent,
+                                progress = line.gradientProgress.value,
+                                size = size.copy(height = chartAreaHeight)
+                            )
+                        } else if (line.firstGradientFillColor != null && line.secondGradientFillColor != null) {
                             drawLineGradient(
                                 path = pathData.path,
                                 color1 = line.firstGradientFillColor,
@@ -566,43 +585,56 @@ private fun DrawScope.drawPopup(
             offset = animatedOffset,
             size = rectSize
         )
-        drawPath(
-            path = Path().apply {
-                addRoundRect(
-                    RoundRect(
-                        rect = rect.copy(
-                            top = rect.top,
-                            left = rect.left,
-                        ),
-                        topLeft = CornerRadius(
-                            if (conflictDetected) popupProperties.cornerRadius.toPx() else 0f,
-                            if (conflictDetected) popupProperties.cornerRadius.toPx() else 0f
-                        ),
-                        topRight = CornerRadius(
-                            if (!conflictDetected) popupProperties.cornerRadius.toPx() else 0f,
-                            if (!conflictDetected) popupProperties.cornerRadius.toPx() else 0f
-                        ),
-                        bottomRight = CornerRadius(
-                            popupProperties.cornerRadius.toPx(),
-                            popupProperties.cornerRadius.toPx()
-                        ),
-                        bottomLeft = CornerRadius(
-                            popupProperties.cornerRadius.toPx(),
-                            popupProperties.cornerRadius.toPx()
-                        ),
-                    )
-                )
-            },
-            color = popupProperties.containerColor,
-            alpha = 1f * progress
-        )
-        drawText(
-            textLayoutResult = measureResult,
-            topLeft = animatedOffset.copy(
-                x = animatedOffset.x + popupProperties.contentHorizontalPadding.toPx(),
-                y = animatedOffset.y + popupProperties.contentVerticalPadding.toPx()
+        if (popupProperties.showCircle) {
+            drawCircle(
+                color = popupProperties.containerColor,
+                radius = 24f,
+                center = offset,
             )
-        )
+            drawCircle(
+                color = popupProperties.circleColor,
+                radius = 20f,
+                center = offset,
+            )
+        } else {
+            drawPath(
+                path = Path().apply {
+                    addRoundRect(
+                        RoundRect(
+                            rect = rect.copy(
+                                top = rect.top,
+                                left = rect.left,
+                            ),
+                            topLeft = CornerRadius(
+                                if (conflictDetected) popupProperties.cornerRadius.toPx() else 0f,
+                                if (conflictDetected) popupProperties.cornerRadius.toPx() else 0f
+                            ),
+                            topRight = CornerRadius(
+                                if (!conflictDetected) popupProperties.cornerRadius.toPx() else 0f,
+                                if (!conflictDetected) popupProperties.cornerRadius.toPx() else 0f
+                            ),
+                            bottomRight = CornerRadius(
+                                popupProperties.cornerRadius.toPx(),
+                                popupProperties.cornerRadius.toPx()
+                            ),
+                            bottomLeft = CornerRadius(
+                                popupProperties.cornerRadius.toPx(),
+                                popupProperties.cornerRadius.toPx()
+                            ),
+                        )
+                    )
+                },
+                color = popupProperties.containerColor,
+                alpha = 1f * progress
+            )
+            drawText(
+                textLayoutResult = measureResult,
+                topLeft = animatedOffset.copy(
+                    x = animatedOffset.x + popupProperties.contentHorizontalPadding.toPx(),
+                    y = animatedOffset.y + popupProperties.contentVerticalPadding.toPx()
+                )
+            )
+        }
     }
 }
 
@@ -622,7 +654,15 @@ fun DrawScope.drawDots(
 
     pathMeasure.setPath(linePath, false)
     val lastPosition = pathMeasure.getPosition(pathMeasure.length)
-    dataPoints.forEachIndexed { valueIndex, value ->
+    val list = if (properties.drawOnlyMaxAndMin) {
+        listOf(
+            dataPoints.minBy { it.second },
+            dataPoints.maxBy { it.second },
+        )
+    } else {
+        dataPoints
+    }
+    list.forEachIndexed { valueIndex, value ->
         val dotOffset = Offset(
             x = _size.width.spaceBetween(
                 itemCount = dataPoints.count(),

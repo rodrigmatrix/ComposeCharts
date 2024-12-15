@@ -11,6 +11,8 @@ import ir.ehsannarmani.compose_charts.extensions.format
 
 data class PopupProperties(
     val enabled: Boolean = true,
+    val showCircle: Boolean = false,
+    val circleColor: Color = Color(0xff313131),
     val animationSpec: AnimationSpec<Float> = tween(400),
     val duration: Long = 1500,
     val textStyle: TextStyle = TextStyle.Default.copy(fontSize = 12.sp),
