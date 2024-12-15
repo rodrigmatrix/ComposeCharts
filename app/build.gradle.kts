@@ -39,16 +39,6 @@ kotlin {
 
     jvm("desktop")
 
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "app"
-            isStatic = true
-        }
-    }
-
     sourceSets {
         val desktopMain by getting
 

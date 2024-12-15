@@ -15,7 +15,7 @@ mavenPublishing{
     coordinates(
         groupId = "io.github.ehsannarmani",
         artifactId = "compose-charts",
-        version = "0.1.0"
+        version = "0.1.0-local-release"
     )
     pom{
         name.set("Compose Charts")
@@ -45,7 +45,6 @@ mavenPublishing{
         }
     }
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
 }
 kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -79,9 +78,6 @@ kotlin {
     }
 
     jvm("desktop")
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
 
     sourceSets {
         val desktopMain by getting
