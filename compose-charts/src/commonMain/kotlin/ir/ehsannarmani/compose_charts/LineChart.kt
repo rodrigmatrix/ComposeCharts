@@ -78,6 +78,13 @@ data class Popup(
     val value: Double
 )
 
+data class PopupValue(
+    val dataIndex: Int,
+    val position: Offset,
+    val value: Double,
+    val xPosition: Float,
+)
+
 @Composable
 fun LineChart(
     modifier: Modifier = Modifier,
@@ -107,7 +114,7 @@ fun LineChart(
     minValue: Double = if (data.any { it.values.any { it < 0.0 } }) data.minOfOrNull {
         it.values.minOfOrNull { it } ?: 0.0
     } ?: 0.0 else 0.0,
-    onPopupDisplay: (Popup?) -> Unit = { },
+    onPopupDisplay: (PopupValue?) -> Unit = { },
 ) {
     if (data.isNotEmpty()) {
         require(minValue <= (data.minOfOrNull { it.values.minOfOrNull { it } ?: 0.0 } ?: 0.0)) {
@@ -315,10 +322,11 @@ fun LineChart(
                                         )
 
                                         onPopupDisplay(
-                                            Popup(
+                                            PopupValue(
                                                 position = popupValue.offset,
                                                 value = popupValue.calculatedValue,
-                                                properties = properties
+                                                dataIndex = popupValue.index,
+                                                xPosition = positionX,
                                             )
                                         )
 
@@ -532,6 +540,9 @@ private fun DrawScope.drawPopup(
 ) {
     val offset = popup.position
     val popupProperties = popup.properties
+    if (popupProperties.enabled.not()) {
+        return
+    }
     val measureResult = textMeasurer.measure(
         popupProperties.contentBuilder(popup.value),
         style = popupProperties.textStyle.copy(

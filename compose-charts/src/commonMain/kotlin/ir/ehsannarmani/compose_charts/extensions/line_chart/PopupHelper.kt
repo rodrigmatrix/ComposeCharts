@@ -9,6 +9,7 @@ import kotlin.math.pow
 
 internal data class Value(
     val calculatedValue: Double,
+    val index: Int,
     val offset: Offset,
 )
 
@@ -33,7 +34,7 @@ internal fun getPopupValue(
                 value = lastPoint.toFloat()
             ).toFloat()
         )
-        Value(calculatedValue = points.last(), offset = offset)
+        Value(calculatedValue = points.last(), offset = offset, index = roundedIndex)
     } else {
         if (rounded && points.count() > 1) {
             val calculateHeight = { value: Double ->
@@ -69,7 +70,7 @@ internal fun getPopupValue(
                 offset = size.height - outputY
             )
 
-            Value(calculatedValue = calculatedValue, offset = Offset(x = outputX, y = outputY))
+            Value(calculatedValue = calculatedValue, offset = Offset(x = outputX, y = outputY), index = roundedIndex)
         } else {
             val p1 = points[roundedIndex]
             val p2 = points.getOrNull(roundedIndex + 1) ?: p1
@@ -83,7 +84,7 @@ internal fun getPopupValue(
                     value = calculatedValue.toFloat()
                 ).toFloat()
             )
-            Value(calculatedValue = calculatedValue, offset = offset)
+            Value(calculatedValue = calculatedValue, offset = offset, index = roundedIndex)
         }
     }
 }
