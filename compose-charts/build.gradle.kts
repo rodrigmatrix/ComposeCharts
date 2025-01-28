@@ -19,9 +19,9 @@ mavenPublishing{
     )
     pom{
         name.set("Compose Charts")
-        description.set("https://github.com/ehsannarmani/ComposeCharts")
+        description.set("https://github.com/rodrigmatrix/ComposeCharts")
         inceptionYear.set("2024")
-        url.set("https://github.com/ehsannarmani/ComposeCharts")
+        url.set("https://github.com/rodrigmatrix/ComposeCharts")
 
         licenses {
             license {
@@ -41,7 +41,7 @@ mavenPublishing{
 
         // Specify SCM information
         scm {
-            url.set("https://github.com/ehsannarmani/ComposeCharts")
+            url.set("https://github.com/rodrigmatrix/ComposeCharts")
         }
     }
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
