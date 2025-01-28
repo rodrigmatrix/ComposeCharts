@@ -13,9 +13,9 @@ plugins {
 }
 mavenPublishing{
     coordinates(
-        groupId = "io.github.ehsannarmani",
+        groupId = "io.github.rodrigmatrix",
         artifactId = "compose-charts",
-        version = "0.1.0-local-release"
+        version = "1.0"
     )
     pom{
         name.set("Compose Charts")
